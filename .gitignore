@@ -1,0 +1,11 @@
+# Real credentials — never commit. Use suites/e2e/credentials.example.txt as the shape.
+credentials.local.txt
+
+# Run artifacts, not tooling.
+results/
+shots/
+
+# Anything else named *.local.* is assumed to hold machine-specific secrets...
+*.local.*
+# ...except the harness permission allowlist, which is deliberately tracked here.
+!settings/settings.local.json
