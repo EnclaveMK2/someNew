@@ -8,7 +8,8 @@ harness settings.
 
 | Path | What it is |
 |---|---|
-| `harness/winput.ps1` | DPI-aware Win32 SendInput harness — launch, wake, click, drag, type, guarded screenshots |
+| `harness/winput.ps1` | DPI-aware Win32 SendInput harness — launch, wake, click, drag, type, keys, guarded screenshots |
+| `harness/viz-route.ps1` | builds a unit's movement route in the scenario editor (select → `R` → points → double-click) |
 | `suites/e2e/` | the e2e suite: orchestrator README, worker preamble, dispatch template, cases |
 | `suites/e2e/cases/` | the live test cases (`TC-AUTH-*`, `TC-ROLE-*`); `_TEMPLATE.md` is the shape |
 | `skills/` | Claude Code skills that run and maintain the tests |

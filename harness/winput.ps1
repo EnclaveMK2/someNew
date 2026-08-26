@@ -12,7 +12,7 @@
     click <x> <y> / dbl / move <x> <y>
     drag  <x1> <y1> <x2> <y2> [steps]   press, move in [steps] increments (default 20), release
     type  "<text>"                      unicode typing
-    key   <enter|tab|esc|backspace|delete|space>
+    key   <enter|tab|esc|backspace|delete|space|home|end|arrows|A-Z|VK-number>
     close <pid>
 
   The [pid] guard exists because captures are taken from the SCREEN: if another window steals
@@ -117,7 +117,12 @@ switch ($cmd) {
              [Win]::Drag([int]$a1,[int]$a2,[int]$a3,[int]$a4,$steps,25)
              "drag $a1,$a2 -> $a3,$a4 ($steps steps)" }
   "type"   { foreach($c in $a1.ToCharArray()){ [Win]::Uni($c); Start-Sleep -Milliseconds 8 }; "typed" }
-  "key"    { $vk = switch($a1){ "enter"{0x0D} "tab"{0x09} "esc"{0x1B} "backspace"{0x08} "delete"{0x2E} "space"{0x20} default{[int]$a1} }
+  "key"    { $vk = switch -Regex ($a1){
+               "^enter$"{0x0D} "^tab$"{0x09} "^esc$"{0x1B} "^backspace$"{0x08} "^delete$"{0x2E}
+               "^space$"{0x20} "^home$"{0x24} "^end$"{0x23}
+               "^up$"{0x26} "^down$"{0x28} "^left$"{0x25} "^right$"{0x27}
+               "^[A-Za-z]$"{ [int][char]([string]$a1).ToUpper() }   # letter keys: their VK is the uppercase ASCII code
+               default{[int]$a1} }
              [Win]::Vk([uint16]$vk); "key $a1" }
   "close"  { Stop-Process -Id ([int]$a1) -Force; "closed $a1" }
   default  { "unknown cmd: $cmd" }
