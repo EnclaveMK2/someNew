@@ -5,6 +5,11 @@ application** (a Unity 6 desktop app) by driving real mouse/keyboard input and r
 You start with **no prior context** — everything you need is in this file and in the case files
 you were given. Do not go looking for extra context.
 
+**If your case builds a scenario** — placing units, setting sides, drawing routes — also read
+`tests/e2e/scenario-editing.md`. It carries the editor tools and the rules that are invisible on
+screen (units spawn at the map centre and stack there unseen; position a unit before routing it).
+Read it instead of working them out by experiment.
+
 ## Golden rules
 
 1. **Never trust a click you did not verify.** After every action that should change the UI,

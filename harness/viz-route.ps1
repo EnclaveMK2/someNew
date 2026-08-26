@@ -9,12 +9,18 @@
   layout shifts with the selected element, so its coordinates are not stable. `R` is.
 
   IMPORTANT -- how the editor actually behaves (verified against v1.1.0-rc.2):
-    * The FIRST click after R is the route's starting point, and the unit relocates to it.
-      It is not a waypoint. Pass the unit's intended start position as the first point.
-    * Every later click adds a waypoint.
+    * The route is drawn FROM the unit's current position. The unit does NOT move. Every
+      click, including the first, adds a waypoint.
+    * Position the unit BEFORE routing it (viz-unit.ps1 -MoveTo). Routing will not move it
+      off the map centre, and a unit left at the centre is where the next one lands.
     * A double-click places the final waypoint AND ends the route.
     * While route mode is active the PROPERTIES panel reads "Nothing selected" -- that is
       normal and does NOT mean the mode failed to start.
+
+  An earlier version of this header claimed the first click relocates the unit. It does not.
+  That reading came from runs where several units were stacked invisibly at the map centre,
+  so the "unit that moved" was actually a different unit underneath. If a unit ever appears
+  to teleport, suspect a stack before believing the app moved it.
 
   Usage:
     viz-route.ps1 -AppPid 16860 -Points "1320,470;1450,560;1580,480"
