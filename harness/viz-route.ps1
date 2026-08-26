@@ -22,6 +22,9 @@
 
   Parameters:
     -AppPid   pid of the running Theater.Viz player (required)
+    -Via      hotkey (press R, default) or button (click "Create Route"). Both exist so an
+              e2e pass can cover either entry point; the button's y-position depends on the
+              panel contents, so prefer the hotkey unless the button is what is under test.
     -Points   "x,y;x,y;..." in screen coordinates; at least 2. First = start, last = end.
     -UnitAt   click here first to select the unit. Omit if it is already selected.
     -SettleMs pause after each click (default 900) -- the editor drops clicks sent too fast.
@@ -30,6 +33,7 @@
 param(
   [Parameter(Mandatory=$true)][int]$AppPid,
   [Parameter(Mandatory=$true)][string]$Points,
+  [ValidateSet("hotkey","button")][string]$Via = "hotkey",
   [string]$UnitAt,
   [int]$SettleMs = 900,
   [string]$Shot
@@ -65,7 +69,13 @@ if ($UnitAt) {
 }
 
 # Start route mode. The panel going blank afterwards is expected, not a failure.
-W key r | Out-Null
+if ($Via -eq "hotkey") {
+  W key r | Out-Null
+} else {
+  # "Create Route" in the PROPERTIES panel, positioned for a selected UNIT. This y shifts
+  # with the panel's contents, which is exactly why the hotkey is the default.
+  W click 204 656 | Out-Null
+}
 Start-Sleep -Milliseconds $SettleMs
 
 for ($i = 0; $i -lt $pts.Count; $i++) {
