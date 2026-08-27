@@ -90,6 +90,42 @@ powershell.exe ... -File "$H" pick 204 710       # hover, settle, then click
 Use `pick` for everything in the left panel. Plain `click` is fine on the map. This is the
 single most common way an editor case fails silently.
 
+## Measuring a route: viz-route-nodes.ps1
+
+```bash
+viz-route-nodes.ps1 -AppPid <pid> [-Expect 3] [-Shot out.png]
+```
+
+Reports the screen coordinates of a route's waypoints, read off the pixels. **Click the route
+first** — a selected route is drawn red, and the script keys off that colour; an unselected one
+is black and it will say so rather than report nothing found.
+
+This is the only thing here that reports what the app ENDED UP WITH rather than what a script
+DID, and it is what turns editor work from guesswork into measurement. Use `-Expect N` in a case
+to fail the run when the count is wrong.
+
+Known limits: it needs the route selected, and it drops blobs sitting on a unit (a unit draws
+its own pale anchor dot that is otherwise indistinguishable from a waypoint).
+
+## Deleting a WAYPOINT: not solved
+
+Measured on v1.1.0-rc.2, from a clean scenario each time:
+
+| Attempt | Result |
+|---|---|
+| click the waypoint, press `Delete` | the **whole route** is deleted (2 of 2 runs) |
+| double-click the waypoint, press `Delete` | the **whole route** is deleted |
+| right-click the waypoint | nothing; no context menu |
+| double-click the waypoint alone | nothing |
+
+Clicking a waypoint selects the ROUTE — the panel switches to `ROUTE` properties — which is
+consistent with `Delete` taking the whole thing.
+
+One early run did appear to remove a single waypoint and leave the rest, but it happened after
+several exploratory clicks and has not reproduced once since, under measurement. Treat
+single-waypoint deletion as **unknown**, not as a documented capability, until someone
+demonstrates the interaction.
+
 ## Deleting an element
 
 Two ways, both verified. There is **no confirmation** either way — the element goes immediately.

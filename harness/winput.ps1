@@ -9,7 +9,7 @@
     wake  <pid>                         minimize+restore to force real activation
     shot  <png> [pid]                   full-screen capture; with pid, REFUSES unless that pid is foreground
     region <png> <x> <y> <w> <h> [pid]  cropped capture; same refusal guard
-    click <x> <y> / dbl / move <x> <y>
+    click <x> <y> / rclick <x> <y> / dbl / move <x> <y>
     pick  <x> <y> [hoverMs]             hover-then-click; REQUIRED for left-panel controls
     drag  <x1> <y1> <x2> <y2> [steps]   press, move in [steps] increments (default 20), release
     type  "<text>"                      unicode typing
@@ -41,6 +41,9 @@ public class Win {
   [DllImport("user32.dll")] public static extern uint SendInput(uint n,KINPUT[] p,int cb);
   public static void Click(int x,int y){ SetCursorPos(x,y);
     INPUT[] i=new INPUT[2]; i[0].type=0; i[0].mi.f=0x0002; i[1].type=0; i[1].mi.f=0x0004;
+    SendInput(2,i,Marshal.SizeOf(typeof(INPUT))); }
+  public static void RClick(int x,int y){ SetCursorPos(x,y);
+    INPUT[] i=new INPUT[2]; i[0].type=0; i[0].mi.f=0x0008; i[1].type=0; i[1].mi.f=0x0010;
     SendInput(2,i,Marshal.SizeOf(typeof(INPUT))); }
   // Press/release as separate events so a drag can hold the button across intermediate moves.
   // Unity ignores a teleporting drag: it needs real motion between down and up, hence Drag steps.
@@ -142,6 +145,8 @@ switch ($cmd) {
              $pause = if ($a3) { [int]$a3 } else { 700 }
              [void][Win]::SetCursorPos([int]$a1,[int]$a2); Start-Sleep -Milliseconds $pause
              [Win]::Click([int]$a1,[int]$a2); "pick $a1 $a2 (hover ${pause}ms)" }
+  "rclick" { [void][Win]::SetCursorPos([int]$a1,[int]$a2); Start-Sleep -Milliseconds 400
+             [Win]::RClick([int]$a1,[int]$a2); "rclick $a1 $a2" }
   "dbl"    { [Win]::Click([int]$a1,[int]$a2); Start-Sleep -Milliseconds 60; [Win]::Click([int]$a1,[int]$a2); "dbl $a1 $a2" }
   "move"   { [void][Win]::SetCursorPos([int]$a1,[int]$a2); "move $a1 $a2" }
   "drag"   { $steps = if ($a5) { [int]$a5 } else { 20 }
