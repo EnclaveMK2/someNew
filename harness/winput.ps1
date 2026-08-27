@@ -57,14 +57,20 @@ public class Win {
       SetCursorPos(x1+(x2-x1)*s/steps, y1+(y2-y1)*s/steps);
       System.Threading.Thread.Sleep(pauseMs); }
     Up(x2,y2); }
-  public static void Vk(ushort vk){ KINPUT[] k=new KINPUT[2];
-    k[0].type=1;k[0].ki.vk=vk; k[1].type=1;k[1].ki.vk=vk;k[1].ki.f=0x0002;
+  // Delete/Insert/Home/End/PageUp/PageDown/arrows are EXTENDED keys: without
+  // KEYEVENTF_EXTENDEDKEY (0x0001) they arrive as their numpad twins and an app that listens
+  // for the real key never sees it. Costs nothing to set for the keys that need it.
+  static bool Ext(ushort vk){
+    return vk==0x2D||vk==0x2E||vk==0x24||vk==0x23||vk==0x21||vk==0x22
+        || vk==0x25||vk==0x26||vk==0x27||vk==0x28||vk==0x2C||vk==0x90; }
+  public static void Vk(ushort vk){ uint e = Ext(vk) ? 0x0001u : 0u; KINPUT[] k=new KINPUT[2];
+    k[0].type=1;k[0].ki.vk=vk;k[0].ki.f=e; k[1].type=1;k[1].ki.vk=vk;k[1].ki.f=e|0x0002;
     SendInput(2,k,Marshal.SizeOf(typeof(KINPUT))); }
   // Press and release split apart, so modifiers can be held across another key.
-  public static void VkDown(ushort vk){ KINPUT[] k=new KINPUT[1];
-    k[0].type=1;k[0].ki.vk=vk; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
-  public static void VkUp(ushort vk){ KINPUT[] k=new KINPUT[1];
-    k[0].type=1;k[0].ki.vk=vk;k[0].ki.f=0x0002; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
+  public static void VkDown(ushort vk){ uint e = Ext(vk) ? 0x0001u : 0u; KINPUT[] k=new KINPUT[1];
+    k[0].type=1;k[0].ki.vk=vk;k[0].ki.f=e; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
+  public static void VkUp(ushort vk){ uint e = Ext(vk) ? 0x0001u : 0u; KINPUT[] k=new KINPUT[1];
+    k[0].type=1;k[0].ki.vk=vk;k[0].ki.f=e|0x0002; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
   public static void Uni(char c){ KINPUT[] k=new KINPUT[2];
     k[0].type=1;k[0].ki.sc=(ushort)c;k[0].ki.f=0x0004;
     k[1].type=1;k[1].ki.sc=(ushort)c;k[1].ki.f=0x0006;

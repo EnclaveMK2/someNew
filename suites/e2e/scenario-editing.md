@@ -92,9 +92,29 @@ single most common way an editor case fails silently.
 
 ## Deleting an element
 
-With the unit selected, `pick` the **Delete** button (at `204,710` when the panel is showing a
-UNIT). There is **no confirmation** — it goes immediately. There is also **no keyboard
-shortcut**: pressing `Delete` on a selected unit does nothing, so the button is the only way.
+Two ways, both verified. There is **no confirmation** either way — the element goes immediately.
+
+```bash
+powershell.exe ... -File "$H" key delete      # hotkey, with the unit selected
+powershell.exe ... -File "$H" pick 204 710    # the Delete button (panel showing a UNIT)
+```
+
+Prefer the hotkey: the button's position moves with the panel's contents.
+
+The `Delete` key only works if no text field holds keyboard focus — after typing into the MGRS
+field, click the unit first. And it only works from a harness that sends it as an **extended
+key**; see below.
+
+## A key that "does nothing" may be your own bug
+
+`Delete`, `Insert`, `Home`, `End`, `PageUp`, `PageDown` and the arrows are **extended keys** in
+Win32. Sent without `KEYEVENTF_EXTENDEDKEY`, they arrive as their numpad twins and an app
+listening for the real key never sees them — the keypress simply has no effect, with nothing to
+distinguish it from "this app has no such shortcut".
+
+`winput.ps1` sets the flag for those keys now. It did not always, and that produced a confident,
+wrong conclusion recorded here: that deleting had no keyboard shortcut. It does. Before deciding
+an app lacks a shortcut, make sure the keystroke is actually reaching it.
 
 ## Changing a unit's side
 
