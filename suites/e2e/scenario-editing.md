@@ -77,15 +77,33 @@ Hovering over a unit reads ~10-15 m off, because the symbol is drawn above its a
 you cannot hover exactly on it. Use the panel to assert where a unit is; use the status bar
 (`winput.ps1 move x y`, then crop the bar) to ask what a point on the map is.
 
+## Clicking anything in the left panel: use `pick`, not `click`
+
+UI Toolkit panel controls — **buttons as well as dropdown items** — swallow a synthetic click
+that arrives with no preceding mouse-move. The control never enters its hover state, the click
+does nothing, and nothing anywhere reports a failure. It looks exactly like a dead button.
+
+```bash
+powershell.exe ... -File "$H" pick 204 710       # hover, settle, then click
+```
+
+Use `pick` for everything in the left panel. Plain `click` is fine on the map. This is the
+single most common way an editor case fails silently.
+
+## Deleting an element
+
+With the unit selected, `pick` the **Delete** button (at `204,710` when the panel is showing a
+UNIT). There is **no confirmation** — it goes immediately. There is also **no keyboard
+shortcut**: pressing `Delete` on a selected unit does nothing, so the button is the only way.
+
 ## Changing a unit's side
 
 No tool for this yet — it is a dropdown. With the unit selected:
 
 ```bash
 H="C:/Work/theater-viz/tests/e2e/tools/winput.ps1"
-powershell.exe ... -File "$H" click 204 494    # open Side
-powershell.exe ... -File "$H" move  200 559    # hover FIRST
-powershell.exe ... -File "$H" click 200 559    # Blue is at y=530, Red at y=559
+powershell.exe ... -File "$H" pick  204 494    # open Side (Blue y=530, Red y=559)
+powershell.exe ... -File "$H" pick  200 559    # pick = hover + click
 ```
 
 **The hover is required.** A dropdown item swallows a cold synthetic click: the list stays

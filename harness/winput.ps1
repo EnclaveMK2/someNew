@@ -10,6 +10,7 @@
     shot  <png> [pid]                   full-screen capture; with pid, REFUSES unless that pid is foreground
     region <png> <x> <y> <w> <h> [pid]  cropped capture; same refusal guard
     click <x> <y> / dbl / move <x> <y>
+    pick  <x> <y> [hoverMs]             hover-then-click; REQUIRED for left-panel controls
     drag  <x1> <y1> <x2> <y2> [steps]   press, move in [steps] increments (default 20), release
     type  "<text>"                      unicode typing
     key   <enter|tab|esc|backspace|delete|space|home|end|arrows|A-Z|VK-number>
@@ -128,6 +129,13 @@ switch ($cmd) {
   "region" { if (-not (GuardOk $a6)) { break }
              Grab $a1 ([int]$a2) ([int]$a3) ([int]$a4) ([int]$a5); "region $a1 $a2,$a3 ${a4}x${a5} fg=$(FgPid)" }
   "click"  { [Win]::Click([int]$a1,[int]$a2); "click $a1 $a2" }
+  "pick"   { # Hover, settle, then click. UI Toolkit panel controls -- buttons AND dropdown
+             # items -- swallow a synthetic click that arrives without a preceding mouse-move:
+             # the control never enters its hover state and the click does nothing, silently.
+             # Use this for anything in the left panel; plain "click" is fine on the map.
+             $pause = if ($a3) { [int]$a3 } else { 700 }
+             [void][Win]::SetCursorPos([int]$a1,[int]$a2); Start-Sleep -Milliseconds $pause
+             [Win]::Click([int]$a1,[int]$a2); "pick $a1 $a2 (hover ${pause}ms)" }
   "dbl"    { [Win]::Click([int]$a1,[int]$a2); Start-Sleep -Milliseconds 60; [Win]::Click([int]$a1,[int]$a2); "dbl $a1 $a2" }
   "move"   { [void][Win]::SetCursorPos([int]$a1,[int]$a2); "move $a1 $a2" }
   "drag"   { $steps = if ($a5) { [int]$a5 } else { 20 }
