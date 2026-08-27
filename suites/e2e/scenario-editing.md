@@ -50,6 +50,33 @@ viz-route.ps1 -AppPid $PID -Points "820,230;950,300;1080,240"
   reason about it; `viz-unit.ps1 -Via button` detects the miss and retries.
 - **`New` wipes the scenario silently**, no confirmation. Never click it to tidy up.
 
+## Placing a unit at an exact coordinate
+
+```bash
+viz-move.ps1 -AppPid <pid> -Mgrs "36U UA 03889 93291" [-UnitAt "x,y"] [-Verify out.png]
+```
+
+The PROPERTIES panel's **MGRS field is editable**, and typing into it is the only precise way to
+place a unit: at typical zoom one pixel is ~1.3 m, so dragging cannot land on a given 10-digit
+grid reference. The unit must be selected first (a freshly placed one already is).
+
+The script cannot read text, so it detects the silent failure — a click that missed the field,
+after which the typing goes nowhere — but not wrong digits. Pass `-Verify` and read the crop
+when the exact value matters.
+
+## Reading a coordinate back
+
+Two sources, and they do **not** agree:
+
+| Source | Gives |
+|---|---|
+| PROPERTIES panel, MGRS field (unit selected) | the unit's own stored coordinate — **authoritative** |
+| bottom status bar | the coordinate under the CURSOR, wherever the mouse happens to be |
+
+Hovering over a unit reads ~10-15 m off, because the symbol is drawn above its anchor point and
+you cannot hover exactly on it. Use the panel to assert where a unit is; use the status bar
+(`winput.ps1 move x y`, then crop the bar) to ask what a point on the map is.
+
 ## Changing a unit's side
 
 No tool for this yet — it is a dropdown. With the unit selected:

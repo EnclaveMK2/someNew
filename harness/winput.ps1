@@ -13,6 +13,7 @@
     drag  <x1> <y1> <x2> <y2> [steps]   press, move in [steps] increments (default 20), release
     type  "<text>"                      unicode typing
     key   <enter|tab|esc|backspace|delete|space|home|end|arrows|A-Z|VK-number>
+    chord <ctrl|shift|alt|win>+...+<key>   e.g. ctrl+a to select a field's contents
     close <pid>
 
   The [pid] guard exists because captures are taken from the SCREEN: if another window steals
@@ -58,6 +59,11 @@ public class Win {
   public static void Vk(ushort vk){ KINPUT[] k=new KINPUT[2];
     k[0].type=1;k[0].ki.vk=vk; k[1].type=1;k[1].ki.vk=vk;k[1].ki.f=0x0002;
     SendInput(2,k,Marshal.SizeOf(typeof(KINPUT))); }
+  // Press and release split apart, so modifiers can be held across another key.
+  public static void VkDown(ushort vk){ KINPUT[] k=new KINPUT[1];
+    k[0].type=1;k[0].ki.vk=vk; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
+  public static void VkUp(ushort vk){ KINPUT[] k=new KINPUT[1];
+    k[0].type=1;k[0].ki.vk=vk;k[0].ki.f=0x0002; SendInput(1,k,Marshal.SizeOf(typeof(KINPUT))); }
   public static void Uni(char c){ KINPUT[] k=new KINPUT[2];
     k[0].type=1;k[0].ki.sc=(ushort)c;k[0].ki.f=0x0004;
     k[1].type=1;k[1].ki.sc=(ushort)c;k[1].ki.f=0x0006;
@@ -79,6 +85,17 @@ function Grab($path,$x,$y,$w,$h){
   $bmp.Save($path,[System.Drawing.Imaging.ImageFormat]::Png)
   $g.Dispose();$bmp.Dispose()
 }
+# Key name -> Win32 virtual-key code. Shared by "key" and "chord".
+function KeyVk($name){
+  switch -Regex ($name) {
+    "^enter$"{0x0D} "^tab$"{0x09} "^esc$"{0x1B} "^backspace$"{0x08} "^delete$"{0x2E}
+    "^space$"{0x20} "^home$"{0x24} "^end$"{0x23}
+    "^up$"{0x26} "^down$"{0x28} "^left$"{0x25} "^right$"{0x27}
+    "^[A-Za-z]$"{ [int][char]([string]$name).ToUpper() }  # a letter's VK is its uppercase ASCII code
+    default{ [int]$name }                                  # raw VK number
+  }
+}
+
 # Returns $true when it is safe to capture; prints the refusal otherwise.
 function GuardOk($want){
   if (-not $want) { return $true }
@@ -117,13 +134,24 @@ switch ($cmd) {
              [Win]::Drag([int]$a1,[int]$a2,[int]$a3,[int]$a4,$steps,25)
              "drag $a1,$a2 -> $a3,$a4 ($steps steps)" }
   "type"   { foreach($c in $a1.ToCharArray()){ [Win]::Uni($c); Start-Sleep -Milliseconds 8 }; "typed" }
-  "key"    { $vk = switch -Regex ($a1){
-               "^enter$"{0x0D} "^tab$"{0x09} "^esc$"{0x1B} "^backspace$"{0x08} "^delete$"{0x2E}
-               "^space$"{0x20} "^home$"{0x24} "^end$"{0x23}
-               "^up$"{0x26} "^down$"{0x28} "^left$"{0x25} "^right$"{0x27}
-               "^[A-Za-z]$"{ [int][char]([string]$a1).ToUpper() }   # letter keys: their VK is the uppercase ASCII code
-               default{[int]$a1} }
-             [Win]::Vk([uint16]$vk); "key $a1" }
+  "key"    { [Win]::Vk([uint16](KeyVk $a1)); "key $a1" }
+  "chord"  { # e.g. "ctrl+a", "ctrl+shift+end", "alt+enter" -- modifiers held across the last key
+             $parts = ($a1 -split '\+') | ForEach-Object { $_.Trim() }
+             $mods = @(); $last = $parts[-1]
+             foreach ($m in $parts[0..($parts.Count-2)]) {
+               switch -Regex ($m) {
+                 "^(ctrl|control)$" { $mods += 0x11 }
+                 "^shift$"          { $mods += 0x10 }
+                 "^alt$"            { $mods += 0x12 }
+                 "^(win|meta)$"     { $mods += 0x5B }
+                 default { "unknown modifier: $m"; return }
+               }
+             }
+             $vk = KeyVk $last
+             foreach ($m in $mods) { [Win]::VkDown([uint16]$m) }
+             [Win]::Vk([uint16]$vk)
+             [array]::Reverse($mods); foreach ($m in $mods) { [Win]::VkUp([uint16]$m) }
+             "chord $a1" }
   "close"  { Stop-Process -Id ([int]$a1) -Force; "closed $a1" }
   default  { "unknown cmd: $cmd" }
 }
