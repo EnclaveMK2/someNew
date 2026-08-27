@@ -22,10 +22,21 @@ cursor and keyboard input — there is no back door into the app.
 
 ## Where it runs from
 
-The working copy lives in the product repo at `theater-viz/tests/e2e/` and
-`theater-viz/.claude/skills/`. **This repo is the home of record, not the runtime location** —
-paths inside the skills and the preamble are absolute (`C:/Work/theater-viz/...`) and assume
-that checkout. Copy changes back and forth deliberately; nothing syncs automatically.
+**This repo is the home of record, not the runtime location.** Deploy it as:
+
+| From here | To | Why there |
+|---|---|---|
+| `suites/e2e/`, `harness/` | `C:/Work/theater-viz/tests/e2e/` (+ `tools/`) | next to the app under test; git-ignored there via `.git/info/exclude` |
+| `skills/*` | `C:/Work/.claude/skills/` | **not** into the product repo |
+
+Skills must go in the **workspace root** `.claude/skills/`, not in `theater-viz/.claude/skills/`.
+A skill stored under a subdirectory is only offered once the session touches files in that
+subdirectory, so a fresh chat that opens at `C:/Work` and is asked to build a scenario would
+not be offered it at all — which defeats the point of writing it down. Keeping them out of the
+product repo also means no exclude rule to maintain.
+
+Paths inside the skills and the preamble are absolute (`C:/Work/theater-viz/...`) and assume
+that checkout. Nothing syncs automatically; copy changes back deliberately.
 
 ## Credentials
 
