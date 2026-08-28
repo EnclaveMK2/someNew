@@ -44,6 +44,20 @@ then click. Without the hover the list stays open and the value silently does no
 
 **`New` wipes the current scenario with no confirmation.** Never click it to tidy up.
 
+## A click the app never sees
+
+An instantaneous click — press and release delivered in the same `SendInput` batch — is ignored
+by the **map**, though panel buttons accept it. Small map targets like route waypoints then look
+completely dead: no selection, no ring, no panel change, nothing in the log.
+
+`winput.ps1` now holds the button ~70 ms between press and release, and waypoint selection
+became deterministic: **12 of 12** trials on two different waypoints, measured rather than
+eyeballed.
+
+This produced two wrong conclusions before it was found — first that the app had no
+single-waypoint selection, then that the gesture was flaky. When a target does not respond,
+check what the harness actually delivers before concluding anything about the app.
+
 ## Capture
 
 **On v0.19.3+ the login modal and map viewport come back near-black** in computer-use
@@ -54,24 +68,9 @@ file. `winput.ps1 region/shot` is the everyday path and works.
 
 ## Open defects — found, not yet filed
 
-**An intermediate route waypoint cannot be selected — no ring, no state change at all.**
-Expected (per the tester): clicking a waypoint of a selected route draws a thin black circle
-around it, marking it selected. Observed on v1.1.0-rc.2: nothing happens.
-
-Measured, not eyeballed. A 120x120 crop centred on the waypoint is **byte-identical** before and
-after the click (MD5 `309fda92…` both times), and so is the PROPERTIES panel (`4c73929a…`) — no
-ring, no highlight, no new field. Repeated three times, twice on a freshly built route where the
-route was still auto-selected from its closing double-click.
-
-Not a lost click: the control passes. Clicking empty map with the same harness changes the panel
-hash immediately, so input is reaching the app and changing state.
-
-Consequence: `Delete` afterwards removes the **entire route**, because the route is still what is
-selected. Deleting a single waypoint is therefore unreachable through the UI — a route can only
-be rebuilt from scratch. That, plus the missing feedback, is the user-visible half of the bug.
-
-Right-click on a waypoint also does nothing (no context menu), and double-click on one does
-nothing.
+*(A defect filed here claiming route waypoints could not be selected has been withdrawn. It was
+a harness fault, not an app fault — the press and release were being sent in the same instant,
+which the map's hit-testing ignores. See "A click the app never sees" below.)*
 
 **Password reveal ("eye") toggle is sticky.** It resets only on an actual Logout, not on every
 render of the login modal. A failed login attempt keeps reveal ON, so a later unrelated login in

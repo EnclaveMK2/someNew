@@ -107,16 +107,20 @@ to fail the run when the count is wrong.
 Known limits: it needs the route selected, and it drops blobs sitting on a unit (a unit draws
 its own pale anchor dot that is otherwise indistinguishable from a waypoint).
 
-## Selecting a single waypoint: broken, treat as a known defect
+## Selecting one waypoint of a route
 
-Expected: click a waypoint of a selected route and a thin black circle appears around it.
-Observed on v1.1.0-rc.2: **nothing happens at all.** A crop centred on the waypoint is
-byte-identical before and after the click, and so is the PROPERTIES panel. Input is definitely
-arriving — the same harness clicking empty map changes the panel immediately.
+Click it. `winput.ps1 click <x> <y>` — 12 of 12 in trials, on two different waypoints.
 
-So a case cannot select a waypoint, and `Delete` afterwards takes the **whole route**, because
-the route is still what is selected. To change a route, rebuild it. Full detail and evidence in
-`knowledge/known-issues.md`; do not spend a session rediscovering this.
+**How to tell it worked:** the PROPERTIES panel gains a **COORDINATES** section with that
+waypoint's own MGRS and altitude. A selected ROUTE has no COORDINATES section, so the presence
+of that section is the difference between "the route is selected" and "a waypoint is selected".
+The waypoint also gains a thin dark ring, but the panel is the reliable signal — assert on that.
+
+Get exact waypoint coordinates from `viz-route-nodes.ps1` rather than assuming your build points
+landed where you asked.
+
+This only works because `click` now holds the button ~70 ms. An instantaneous press-and-release
+is ignored by the map entirely — see "A click the app never sees" in `knowledge/known-issues.md`.
 
 ## Deleting an element
 

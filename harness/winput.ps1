@@ -39,9 +39,16 @@ public class Win {
   [StructLayout(LayoutKind.Sequential)] public struct KB { public ushort vk;public ushort sc;public uint f;public uint t;public IntPtr e; }
   [StructLayout(LayoutKind.Sequential)] public struct KINPUT { public uint type; public KB ki; public int p0; public int p1; }
   [DllImport("user32.dll")] public static extern uint SendInput(uint n,KINPUT[] p,int cb);
-  public static void Click(int x,int y){ SetCursorPos(x,y);
-    INPUT[] i=new INPUT[2]; i[0].type=0; i[0].mi.f=0x0002; i[1].type=0; i[1].mi.f=0x0004;
-    SendInput(2,i,Marshal.SizeOf(typeof(INPUT))); }
+  // Press and release must be separated in TIME. Sent as one batch, down and up land in the
+  // same frame and the map's hit-testing never sees a click -- small targets like route
+  // waypoints simply cannot be selected. Panel buttons tolerate it; the map does not.
+  public static void Click(int x,int y){ Click(x,y,70); }
+  public static void Click(int x,int y,int holdMs){ SetCursorPos(x,y);
+    INPUT[] d=new INPUT[1]; d[0].type=0; d[0].mi.f=0x0002;
+    SendInput(1,d,Marshal.SizeOf(typeof(INPUT)));
+    System.Threading.Thread.Sleep(holdMs);
+    INPUT[] u=new INPUT[1]; u[0].type=0; u[0].mi.f=0x0004;
+    SendInput(1,u,Marshal.SizeOf(typeof(INPUT))); }
   public static void RClick(int x,int y){ SetCursorPos(x,y);
     INPUT[] i=new INPUT[2]; i[0].type=0; i[0].mi.f=0x0008; i[1].type=0; i[1].mi.f=0x0010;
     SendInput(2,i,Marshal.SizeOf(typeof(INPUT))); }
@@ -137,7 +144,8 @@ switch ($cmd) {
              $b=VScreen; Grab $a1 $b.X $b.Y $b.Width $b.Height; "shot $a1 $($b.Width)x$($b.Height) fg=$(FgPid)" }
   "region" { if (-not (GuardOk $a6)) { break }
              Grab $a1 ([int]$a2) ([int]$a3) ([int]$a4) ([int]$a5); "region $a1 $a2,$a3 ${a4}x${a5} fg=$(FgPid)" }
-  "click"  { [Win]::Click([int]$a1,[int]$a2); "click $a1 $a2" }
+  "click"  { $hold = if ($a3) { [int]$a3 } else { 70 }
+             [Win]::Click([int]$a1,[int]$a2,$hold); "click $a1 $a2 (hold ${hold}ms)" }
   "pick"   { # Hover, settle, then click. UI Toolkit panel controls -- buttons AND dropdown
              # items -- swallow a synthetic click that arrives without a preceding mouse-move:
              # the control never enters its hover state and the click does nothing, silently.
