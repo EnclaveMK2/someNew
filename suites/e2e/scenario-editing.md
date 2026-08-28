@@ -107,24 +107,16 @@ to fail the run when the count is wrong.
 Known limits: it needs the route selected, and it drops blobs sitting on a unit (a unit draws
 its own pale anchor dot that is otherwise indistinguishable from a waypoint).
 
-## Deleting a WAYPOINT: not solved
+## Selecting a single waypoint: broken, treat as a known defect
 
-Measured on v1.1.0-rc.2, from a clean scenario each time:
+Expected: click a waypoint of a selected route and a thin black circle appears around it.
+Observed on v1.1.0-rc.2: **nothing happens at all.** A crop centred on the waypoint is
+byte-identical before and after the click, and so is the PROPERTIES panel. Input is definitely
+arriving — the same harness clicking empty map changes the panel immediately.
 
-| Attempt | Result |
-|---|---|
-| click the waypoint, press `Delete` | the **whole route** is deleted (2 of 2 runs) |
-| double-click the waypoint, press `Delete` | the **whole route** is deleted |
-| right-click the waypoint | nothing; no context menu |
-| double-click the waypoint alone | nothing |
-
-Clicking a waypoint selects the ROUTE — the panel switches to `ROUTE` properties — which is
-consistent with `Delete` taking the whole thing.
-
-One early run did appear to remove a single waypoint and leave the rest, but it happened after
-several exploratory clicks and has not reproduced once since, under measurement. Treat
-single-waypoint deletion as **unknown**, not as a documented capability, until someone
-demonstrates the interaction.
+So a case cannot select a waypoint, and `Delete` afterwards takes the **whole route**, because
+the route is still what is selected. To change a route, rebuild it. Full detail and evidence in
+`knowledge/known-issues.md`; do not spend a session rediscovering this.
 
 ## Deleting an element
 

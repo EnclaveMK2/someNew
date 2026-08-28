@@ -54,6 +54,25 @@ file. `winput.ps1 region/shot` is the everyday path and works.
 
 ## Open defects — found, not yet filed
 
+**An intermediate route waypoint cannot be selected — no ring, no state change at all.**
+Expected (per the tester): clicking a waypoint of a selected route draws a thin black circle
+around it, marking it selected. Observed on v1.1.0-rc.2: nothing happens.
+
+Measured, not eyeballed. A 120x120 crop centred on the waypoint is **byte-identical** before and
+after the click (MD5 `309fda92…` both times), and so is the PROPERTIES panel (`4c73929a…`) — no
+ring, no highlight, no new field. Repeated three times, twice on a freshly built route where the
+route was still auto-selected from its closing double-click.
+
+Not a lost click: the control passes. Clicking empty map with the same harness changes the panel
+hash immediately, so input is reaching the app and changing state.
+
+Consequence: `Delete` afterwards removes the **entire route**, because the route is still what is
+selected. Deleting a single waypoint is therefore unreachable through the UI — a route can only
+be rebuilt from scratch. That, plus the missing feedback, is the user-visible half of the bug.
+
+Right-click on a waypoint also does nothing (no context menu), and double-click on one does
+nothing.
+
 **Password reveal ("eye") toggle is sticky.** It resets only on an actual Logout, not on every
 render of the login modal. A failed login attempt keeps reveal ON, so a later unrelated login in
 the same session starts with the password in plain text. Default masking itself is correct
