@@ -128,6 +128,18 @@ for ($y = 0; $y -lt $H0; $y++) {
         # Parenthesise each element: in PowerShell "," binds tighter than "+", so
         # @(a + b, c + d) builds an array from (b, c) and then tries to add -- which fails
         # with a baffling op_Addition error on System.Object[].
+        # A waypoint is a pale disc inside a DARK outline. Pale ground or a road beside the
+        # route has no such outline, so require dark pixels hugging the blob.
+        [int]$dark = 0
+        for ($ey = [math]::Max(0, $miny - 3); $ey -le [math]::Min($H0 - 1, $maxy + 3); $ey++) {
+          $erow = $ey * $stride
+          for ($ex = [math]::Max(0, $minx - 3); $ex -le [math]::Min($W0 - 1, $maxx + 3); $ex++) {
+            $ei = $erow + $ex * 3
+            if ($bytes[$ei] -lt 100 -and $bytes[$ei+1] -lt 100 -and $bytes[$ei+2] -lt 100) { $dark++ }
+          }
+        }
+        if ($dark -lt 15) { continue }
+
         # A unit draws its own pale anchor dot, which sits on the route start and otherwise
         # looks exactly like a waypoint. Units are filled cyan, so reject any blob with cyan
         # nearby.
@@ -150,7 +162,22 @@ for ($y = 0; $y -lt $H0; $y++) {
   }
 }
 
-$sorted = @($nodes | Sort-Object { $_[0] })
+# Merge blobs that are really one node. A SELECTED waypoint is drawn with a dark ring, which
+# splits its pale disc into two blobs; pale ground beside the line can add a near neighbour too.
+$merged = New-Object System.Collections.ArrayList
+foreach ($nd in $nodes) {
+  $hit = $false
+  for ($m = 0; $m -lt $merged.Count; $m++) {
+    $ex = $merged[$m]
+    $ddx = $ex[0] - $nd[0]; $ddy = $ex[1] - $nd[1]
+    if (($ddx * $ddx + $ddy * $ddy) -le 400) {      # within 20 px
+      $ax = [int]((($ex[0] + $nd[0]) / 2)); $ay = [int]((($ex[1] + $nd[1]) / 2))
+      $merged[$m] = @($ax, $ay); $hit = $true; break
+    }
+  }
+  if (-not $hit) { [void]$merged.Add($nd) }
+}
+$sorted = @($merged | Sort-Object { $_[0] })
 foreach ($nd in $sorted) { "$($nd[0]),$($nd[1])" }
 "count: $($sorted.Count)"
 if ($Shot) { "shot: $Shot" }

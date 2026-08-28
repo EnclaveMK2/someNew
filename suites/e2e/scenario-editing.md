@@ -104,8 +104,33 @@ This is the only thing here that reports what the app ENDED UP WITH rather than 
 DID, and it is what turns editor work from guesswork into measurement. Use `-Expect N` in a case
 to fail the run when the count is wrong.
 
-Known limits: it needs the route selected, and it drops blobs sitting on a unit (a unit draws
-its own pale anchor dot that is otherwise indistinguishable from a waypoint).
+Known limits, all of them over-reporting rather than missing waypoints:
+
+- It needs the route **selected** (red).
+- It drops blobs sitting on a unit — a unit draws its own pale anchor dot on the route start.
+- A **road junction crossed by the route** can still be counted. Roads on this map are pale with
+  dark outlines, which is exactly a waypoint's signature, so no colour or shape rule separates
+  them cleanly.
+
+Real waypoints are always found and their coordinates are accurate to a pixel; treat a count
+higher than you expect as "look at the shot", not as a wrong route.
+
+## Moving a waypoint
+
+Both work, verified by measurement:
+
+```bash
+winput.ps1 drag 1100 561 1150 700 25                       # drag and drop
+viz-move.ps1 -AppPid <pid> -Mgrs "36U UA 03700 93400"      # exact, waypoint selected first
+```
+
+Dragging moved a waypoint from `1100,561` to exactly `1150,701` with the other three untouched.
+It does **not** change which element is selected.
+
+A selected waypoint has its own MGRS field in the COORDINATES section, at the same panel
+position as a unit's — so `viz-move.ps1` works on a waypoint unchanged. Note the app stores a
+value one metre off what you type (`03700` came back as `03699`); harmless, but do not assert on
+an exact echo.
 
 ## Selecting one waypoint of a route
 
