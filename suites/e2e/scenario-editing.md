@@ -132,6 +132,27 @@ position as a unit's — so `viz-move.ps1` works on a waypoint unchanged. Note t
 value one metre off what you type (`03700` came back as `03699`); harmless, but do not assert on
 an exact echo.
 
+## What is selected right now: viz-selected.ps1
+
+```bash
+viz-selected.ps1 -AppPid <pid>                    # prints: nothing | unit | route | waypoint
+viz-selected.ps1 -AppPid <pid> -Expect waypoint   # exits non-zero on any other state
+viz-selected.ps1 -AppPid <pid> -Counts            # also prints the raw pixel counts
+```
+
+**Check this before every `Delete`.** The same keystroke removes a unit, a whole route, or one
+waypoint depending only on this, and the map alone does not show you which — a selected route
+and a selected waypoint look nearly identical.
+
+It reads the panel, not the map: the type word (`UNIT` is 4 letters, `ROUTE` is 5) plus whether
+a COORDINATES section is present (a route has none). Measured on v1.1.0-rc.2 at 1920x1080:
+nothing 187/0, unit 27/784, route 40/368, waypoint 40/734. Re-measure with `-Counts` if the
+panel layout ever changes.
+
+It also catches the miss that looks like success: **a click that misses leaves the previous
+selection intact.** Route lines are thin — clicking a segment at `1000,480` missed while
+`1000,481` hit, one pixel away, and the panel still showed the unit selected from before.
+
 ## Selecting one waypoint of a route
 
 Click it. `winput.ps1 click <x> <y>` — 12 of 12 in trials, on two different waypoints.

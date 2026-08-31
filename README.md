@@ -13,6 +13,7 @@ harness settings.
 | `harness/viz-route.ps1` | builds a unit's movement route — `R` or the Create Route button, then mouse clicks |
 | `harness/viz-move.ps1` | puts a unit at an exact MGRS coordinate by typing into the panel |
 | `harness/viz-route-nodes.ps1` | reads a selected route's waypoints back off the screen — measurement, not action |
+| `harness/viz-selected.ps1` | answers what is selected right now: nothing / unit / route / waypoint |
 
 Both editor scripts take `-Via hotkey|button`, so an e2e pass can drive the same action
 through either entry point and catch one of them regressing. Everything happens through real
