@@ -170,6 +170,16 @@ is ignored by the map entirely — see "A click the app never sees" in `knowledg
 
 ## Deleting an element
 
+**`Delete` removes whatever is selected** — a unit, a whole route, or a single waypoint. There
+is no separate gesture for any of them, so the only thing that decides the outcome is the
+selection. Check it with `viz-selected.ps1 -Expect ...` first; that is the whole reason that
+tool exists.
+
+Verified for the hard case: with a waypoint selected, a route went from 4 waypoints to 3, the
+deleted one being exactly the selected one and the rest untouched. Afterwards the ROUTE is
+selected. Earlier attempts appeared to delete the whole route only because the waypoint was
+never actually selected — the click was not reaching the map.
+
 Two ways, both verified. There is **no confirmation** either way — the element goes immediately.
 
 ```bash
