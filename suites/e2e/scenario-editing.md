@@ -204,21 +204,40 @@ distinguish it from "this app has no such shortcut".
 wrong conclusion recorded here: that deleting had no keyboard shortcut. It does. Before deciding
 an app lacks a shortcut, make sure the keystroke is actually reaching it.
 
-## Changing a unit's side
+## Changing a unit's properties (Side, Size, Type)
 
-No tool for this yet — it is a dropdown. With the unit selected:
+No tool yet — three dropdowns, driven the same way. **Select the unit first**, then `pick` the
+field to open the list and `pick` the item. Use `pick`, never `click`: a dropdown item swallows
+a cold synthetic click, the list stays open and the value silently does not change.
+
+Screen positions with a UNIT selected, 1920x1080:
+
+| Field | Open it | Items |
+|---|---|---|
+| Side | `pick 204 500` | Blue `530`, Red `559` |
+| Size | `pick 204 551` | Squad `581`, Platoon `610`, Company `639` |
+| Type | `pick 204 605` | see below |
+
+Type list, top to bottom: M1A1 Abrams `632`, Leopard 1A5 `661`, Leopard 2A4 `690`,
+Leopard 2A6 `719`, T-90A `748`, T-80 `777` (the default), T72 `806`, BMP-1 `835`, BMP-2 `864`,
+M2 Bradley `893`, Infantry `922`. All at x `204`, spaced 29 px apart.
+
+Worked example — a Company of Abrams:
 
 ```bash
-H="C:/Work/theater-viz/tests/e2e/tools/winput.ps1"
-powershell.exe ... -File "$H" pick  204 494    # open Side (Blue y=530, Red y=559)
-powershell.exe ... -File "$H" pick  200 559    # pick = hover + click
+viz-unit.ps1 -AppPid <pid>            # places a Squad / T-80 / Blue by default
+winput.ps1 pick 204 551               # Size
+winput.ps1 pick 204 639 900           # Company
+winput.ps1 pick 204 605               # Type
+winput.ps1 pick 204 632 900           # M1A1 Abrams
 ```
 
-**The hover is required.** A dropdown item swallows a cold synthetic click: the list stays
-open and the value does not change. Move the cursor onto the item, pause ~1 s, then click.
+**Verify on the map, not only in the panel.** The symbol carries the size: a squad shows a dot
+above the rectangle, a company a single vertical bar. Side changes the shape outright — blue is
+a rectangle, red a diamond. Those are the cheapest checks that a change actually landed.
 
-Red units render as a diamond, blue as a rectangle — that difference is your cheapest
-verification that a side change actually took.
+These y-positions assume the panel is showing a UNIT. They shift with the panel's contents, so
+re-derive them from a screenshot if a case ever edits something else.
 
 ## Verifying
 

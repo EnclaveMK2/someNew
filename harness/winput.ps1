@@ -130,6 +130,11 @@ switch ($cmd) {
   "pid"    { $p = Player; if($p){ "pid=$($p.Id)" } else { "none" } }
   "fg"     { $f = FgPid; $n = try { (Get-Process -Id $f).ProcessName } catch { "unknown" }; "fg_pid=$f name=$n" }
   "wake"   { $want = [int]$a1
+             if (-not (Get-Process -Id $want -ErrorAction SilentlyContinue)) {
+               # The app gets restarted often; without this the caller drowns in .NET null-handle
+               # exceptions instead of being told the obvious thing.
+               "ERROR: no process $want -- the app was restarted. Run the pid command for the current one."
+               break }
              # 1. Already frontmost? Do nothing at all - no flashing.
              if ((FgPid) -eq $want) { "already-foreground $want"; break }
              $p = Get-Process -Id $want
