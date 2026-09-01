@@ -243,6 +243,30 @@ a rectangle, red a diamond. Those are the cheapest checks that a change actually
 These y-positions assume the panel is showing a UNIT. They shift with the panel's contents, so
 re-derive them from a screenshot if a case ever edits something else.
 
+## Simulating a scenario
+
+```bash
+winput.ps1 pick 204 918      # the Simulate button
+winput.ps1 key s             # same thing -- the tooltip gives the shortcut as (S)
+```
+
+Enabled at the same threshold as the auto-save: the scenario needs a unit on each side. With
+one side only the button is grey.
+
+The result lands in **OUTCOME FORECAST** just below it — a bar of three percentages (red, draw,
+blue) and a run count. A first run on a two-unit head-on scenario returned `red 35% / 0% / blue
+65%` over `20 runs`, and repeated captures gave the same figures, so the number shown is the
+aggregate rather than a live-updating figure.
+
+**Nothing changes on the map.** In Edit mode the simulation produces only the forecast; the
+`Visualize` tab is presumably where a run is played back.
+
+Verifying it is easy for once: the bar is absent before the first run (`not run`), so a case can
+assert on that band going from empty to populated.
+
+A stale tooltip may sit over the forecast after pressing the button — synthetic cursor moves do
+not always dismiss it. A click anywhere clears it. Do not mistake it for a UI defect.
+
 ## Verifying
 
 Take a `-Shot` after each unit and route, and actually look at it. Count the units you expect
