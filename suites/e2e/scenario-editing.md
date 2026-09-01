@@ -49,6 +49,10 @@ viz-route.ps1 -AppPid $PID -Points "820,230;950,300;1080,240"
   "last used tool", not "armed", and never clears — not by clicking it, not by Esc. Do not
   reason about it; `viz-unit.ps1 -Via button` detects the miss and retries.
 - **`New` wipes the scenario silently**, no confirmation. Never click it to tidy up.
+- **A scenario SAVES ITSELF to the backend** as soon as it holds at least one unit per side.
+  There is no Save button and no notification; the **Publish** button simply appears in the
+  toolbar. So building a two-sided scenario is not a read-only act — it leaves a row in
+  `Scenarios` under the logged-in account. One-sided scenarios leave nothing.
 
 ## Placing a unit at an exact coordinate
 

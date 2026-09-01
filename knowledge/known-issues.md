@@ -44,6 +44,22 @@ then click. Without the hover the list stays open and the value silently does no
 
 **`New` wipes the current scenario with no confirmation.** Never click it to tidy up.
 
+## Scenarios save themselves to the database
+
+**A scenario is written to the backend automatically once it contains at least one unit per
+side.** No Save button is involved and nothing announces it. The **Publish** button appears in
+the toolbar at the same moment — with only blue units on the map the toolbar has just
+Import / Export / settings.
+
+This is the behaviour with the biggest consequence for testing here: **every test scenario that
+has both a blue and a red unit persists**, and a day of editor work leaves a row per scenario in
+`Scenarios`. A scenario built with only one side leaves nothing.
+
+So a case that builds a two-sided scenario is not read-only against the backend, and a run that
+does it repeatedly accumulates rows under whichever account is logged in. Decide before a run
+whether that is acceptable, and clean up afterwards if it is not. `Scenarios` in the toolbar
+lists them and filters by ID or name.
+
 ## A click the app never sees
 
 An instantaneous click — press and release delivered in the same `SendInput` batch — is ignored
