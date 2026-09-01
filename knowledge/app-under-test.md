@@ -55,6 +55,19 @@ in `tests/e2e/credentials.local.txt` (git-ignored). Ask the tester on a new mach
 | Tester / integration | `IntegraTest` | New / Scenarios only — no task module |
 | Cadet | `cadet`, `cadet_2`, `cadet_3` | Assignments only — no builder, no analytics |
 
+## The teaching flow
+
+The roles are not just different permission sets — they are two ends of one workflow:
+
+1. An **instructor** builds a scenario in the editor. It saves itself to the backend as soon as
+   it has a unit on each side.
+2. The instructor presses **Publish**, which turns that scenario into an **assignment**.
+3. A **cadet** logs in and sees that assignment under `Assignments` — the only menu they have.
+
+So Publish is the hand-off between the two accounts. A test that presses it is creating work in
+a cadet's account, not just changing local state; treat it as an outward-facing action and only
+do it when the case is actually about assignments.
+
 All roles land on the same main window (map + top bar); the role only changes which menus and
 task-panel actions appear. theater-viz has no server-management or account-config UI at all —
 that lives in the Blazor admin, so the only visible admin-vs-instructor difference is Delete.

@@ -47,9 +47,14 @@ then click. Without the hover the list stays open and the value silently does no
 ## Scenarios save themselves to the database
 
 **A scenario is written to the backend automatically once it contains at least one unit per
-side.** No Save button is involved and nothing announces it. The **Publish** button appears in
-the toolbar at the same moment — with only blue units on the map the toolbar has just
+side.** No Save button is involved and nothing announces it. The **Publish** button becomes
+available at the same moment — with only blue units on the map the toolbar has just
 Import / Export / settings.
+
+Publish is not a save button and not a validity indicator. It is how an instructor turns a
+finished scenario into an **assignment** for cadets — see "The teaching flow" in
+`app-under-test.md`. Pressing it creates work that appears in someone else's account, so a case
+must not press it in passing.
 
 This is the behaviour with the biggest consequence for testing here: **every test scenario that
 has both a blue and a red unit persists**, and a day of editor work leaves a row per scenario in
